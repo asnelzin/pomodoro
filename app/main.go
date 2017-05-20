@@ -8,7 +8,7 @@ import (
 var revision string
 
 func main() {
-	log.Printf("secrets %s", revision)
+	log.Printf("pomodoro %s", revision)
 
 	server := rest.Server{}
 	server.Run()

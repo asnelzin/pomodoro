@@ -8,11 +8,11 @@ services:
         hostname: pomodoro
         restart: always
 
+        ports:
+          - "5080:8080"
+
         logging:
           driver: json-file
           options:
               max-size: "10m"
               max-file: "5"
-
-        volumes:
-            - ./var:/data
