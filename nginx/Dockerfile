@@ -16,3 +16,5 @@ RUN \
  cp /usr/share/zoneinfo/$TZ /etc/localtime && \
  echo $TZ > /etc/timezone && \
  rm -rf /var/cache/apk/*
+
+CMD ["/entrypoint.sh"]
