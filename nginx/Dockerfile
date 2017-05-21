@@ -12,9 +12,7 @@ ADD scripts/le.sh /le.sh
 RUN \
  chmod +x /entrypoint.sh && \
  chmod +x /le.sh && \
- apk add  --update letsencrypt tzdata openssl && \
+ apk add  --update certbot tzdata openssl && \
  cp /usr/share/zoneinfo/$TZ /etc/localtime && \
  echo $TZ > /etc/timezone && \
  rm -rf /var/cache/apk/*
-
-CMD ["/entrypoint.sh"]
