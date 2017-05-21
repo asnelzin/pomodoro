@@ -21,6 +21,11 @@ func (s Server) Run() {
 		r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("pong"))
 		})
+
+		r.Post("/callback", func(w http.ResponseWriter, r *http.Request) {
+			// For Callback API confirmation
+			w.Write([]byte("ec92587c"))
+		})
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", router))
