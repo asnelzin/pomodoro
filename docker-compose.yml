@@ -8,11 +8,42 @@ services:
         hostname: pomodoro
         restart: always
 
-        ports:
-          - "5080:8080"
+        logging:
+          driver: json-file
+          options:
+              max-size: "10m"
+              max-file: "5"
+
+    nginx:
+        build: nginx
+        image: asnelzin/pomodor:nginx
+        hostname: nginx
+        restart: always
+        container_name: nginx
 
         logging:
           driver: json-file
           options:
               max-size: "10m"
               max-file: "5"
+
+        depends_on:
+            - pomodoro
+
+        volumes:
+            - ./etc/ssl:/etc/nginx/ssl
+
+        volumes_from:
+            - pomodoro
+
+        ports:
+            - "80:80"
+            - "443:443"
+
+        environment:
+            - LETSENCRYPT=true
+            - LE_EMAIL=asnelzin@gmail.com
+            - LE_FQDN=dev.nelzin.ru
+
+            - SSL_CERT=pomodoro-crt.pem
+            - SSL_KEY=pomodoro-key.pem
