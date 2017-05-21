@@ -5,6 +5,8 @@ import (
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/middleware"
 	"net/http"
+	"net/http/httputil"
+	"fmt"
 )
 
 type Server struct {}
@@ -24,6 +26,12 @@ func (s Server) Run() {
 
 		r.Post("/callback", func(w http.ResponseWriter, r *http.Request) {
 			// For Callback API confirmation
+			requestDump, err := httputil.DumpRequest(r, true)
+			if err != nil {
+  				fmt.Println(err)
+			}
+			fmt.Println(string(requestDump))
+
 			w.Write([]byte("ec92587c"))
 		})
 	})

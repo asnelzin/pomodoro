@@ -16,5 +16,4 @@ EXPOSE 8080
 USER pomodoro
 WORKDIR /srv
 
-VOLUME ["/srv/docroot"]
 ENTRYPOINT ["/srv/pomodoro"]

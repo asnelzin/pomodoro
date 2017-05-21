@@ -15,7 +15,7 @@ if [ ! -f /etc/nginx/ssl/dhparams.pem ]; then
     chmod 600 dhparams.pem
 fi
 
-cp -f /robots.txt /srv/docroot/robots.txt
+cp -f /robots.txt /srv/robots.txt
 
 #disable ssl configuration and let it run without SSL
 mv -v /etc/nginx/conf.d/pomodoro.conf /etc/nginx/conf.d/pomodoro.disabled
