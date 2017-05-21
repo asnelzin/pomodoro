@@ -47,20 +47,22 @@ func (s Server) handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if event.SecretKey != s.SecretKey {
-		log.Println("Secret key does not match!")
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
 	switch event.Type {
+
 	case "confirmation":
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(s.ConfirmationMessage))
+
 	case "message_new":
+		if !CheckSecretMatch(event.SecretKey, s.SecretKey) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
 		log.Println(event.Object)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
+
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
