@@ -1,0 +1,20 @@
+FROM alpine:3.4
+
+# add user and set TZ
+RUN \
+ apk add --update tzdata && \
+ adduser -s /bin/bash -D -u 1001 pomodoro && \
+ mkdir -p /srv && chown -R pomodoro:pomodoro /srv && \
+ cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime && \
+ echo "Europe/Moscow" > /etc/timezone && \
+ rm -rf /var/cache/apk/*
+
+ADD target/pomodoro /srv/pomodoro
+RUN chmod +x /srv/pomodoro
+
+EXPOSE 8080
+USER pomodoro
+WORKDIR /srv
+
+VOLUME ["/srv/docroot"]
+ENTRYPOINT ["/srv/pomodoro"]
