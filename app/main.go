@@ -2,14 +2,15 @@ package main
 
 import (
 	"github.com/asnelzin/pomodoro/app/rest"
+	"github.com/asnelzin/pomodoro/app/vk"
+	"github.com/jessevdk/go-flags"
 	"log"
 	"os"
-	"github.com/jessevdk/go-flags"
 )
 
 var opts struct {
-	SecretKey string `long:"secret" env:"SECRET_KEY" description:"secret key"`
-	APIToken string `long:"token" env:"API_TOKEN" description:"vk api token"`
+	SecretKey           string `long:"secret" env:"SECRET_KEY" description:"secret key"`
+	APIToken            string `long:"token" env:"API_TOKEN" description:"vk api token"`
 	ConfirmationMessage string `long:"confirmation" env:"CONFIRMATION_MESSAGE" description:"confirmation message"`
 }
 
@@ -20,13 +21,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	//bot := getBot(opts.APIToken)
-
 	log.Printf("pomodoro %s", revision)
 
 	server := rest.Server{
+		Bot:                 vk.NewBot(opts.APIToken),
 		ConfirmationMessage: opts.ConfirmationMessage,
-		SecretKey: opts.SecretKey,
+		SecretKey:           opts.SecretKey,
 	}
 	server.Run()
 }

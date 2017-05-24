@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/asnelzin/pomodoro/app/models"
+	"github.com/asnelzin/pomodoro/app/vk"
 )
 
 type Server struct {
-	SecretKey string
+	Bot                 *vk.Bot
+	SecretKey           string
 	ConfirmationMessage string
 }
 
@@ -22,7 +24,7 @@ func (s Server) Run() {
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
-	router.Route("/v1", func (r chi.Router) {
+	router.Route("/v1", func(r chi.Router) {
 		r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("pong"))
 		})
@@ -59,7 +61,12 @@ func (s Server) handleCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Println(event.Object)
+		err = s.Bot.HandleMessage(&event.Object)
+		if err != nil {
+			http.Error(w, "500", http.StatusInternalServerError)
+			return
+		}
+
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 
