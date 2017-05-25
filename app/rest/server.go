@@ -60,7 +60,6 @@ func (s Server) handleCallback(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
-
 		err = s.Bot.HandleMessage(&event.Object)
 		if err != nil {
 			http.Error(w, "500", http.StatusInternalServerError)
