@@ -6,6 +6,7 @@ import (
 	"time"
 	"net/http"
 	"log"
+	"strconv"
 )
 
 type Pomodoro struct {
@@ -36,8 +37,8 @@ func (b Bot) HandleMessage(m *NewMessage) error {
 		Cancel: cancel,
 	}
 
-	duration := 10 * time.Second
-	log.Printf("[INFO] starting new pomodoro for %v minutes", duration)
+	duration := 2 * time.Second
+	log.Printf("[INFO] starting new pomodoro for %v", duration)
 	go b.waitTimer(ctx, duration, id)
 
 	return nil
@@ -52,7 +53,7 @@ func (b Bot) sendMessageToUser(userID int, message string) error {
 
 	q := req.URL.Query()
 	q.Add("message", message)
-	q.Add("user_id", string(userID))
+	q.Add("user_id", strconv.Itoa(userID))
 	q.Add("access_token", b.APIToken)
 	q.Add("v", "5.0")
 	req.URL.RawQuery = q.Encode()
@@ -63,7 +64,6 @@ func (b Bot) sendMessageToUser(userID int, message string) error {
 	if err != nil {
 		return fmt.Errorf("could not call an API: %v", err)
 	}
-
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("bad response from a server: %s", resp.Status)
 	}
@@ -78,7 +78,7 @@ func (b Bot) waitTimer(ctx context.Context, d time.Duration, userID int) {
 		case <-time.After(d):
 			err := b.sendMessageToUser(userID, POMODORO_DONE)
 			if err != nil {
-				log.Printf("[ERROR] can't send message to user, %v", err)
+				log.Printf("[ERROR] can't send message to user: %v", err)
 			}
 			return
 		}
