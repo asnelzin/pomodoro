@@ -1,4 +1,4 @@
-package models
+package vk
 
 type Event struct {
 	Type string `json:"type"`

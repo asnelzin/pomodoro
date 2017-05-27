@@ -1,58 +1,53 @@
 package vk
 
 import (
-	"github.com/asnelzin/pomodoro/app/models"
 	"fmt"
 	"context"
 	"time"
 	"net/http"
-	"io/ioutil"
-	"github.com/asnelzin/pomodoro/app/pomodoro"
 	"log"
 )
 
-const (
-	vkMessageSendURL = "https://api.vk.com/method/messages.send?"
-)
-
-const (
-	POMODORO_DONE = "Well done!"
-)
-
+type Pomodoro struct {
+	Cancel context.CancelFunc
+}
 
 type Bot struct {
 	APIToken string
-	pomodoros map[int]*pomodoro.Job
+	pomodoros map[int]*Pomodoro
 }
 
 func NewBot(token string) *Bot {
 	return &Bot{
 		APIToken: token,
-		pomodoros: make(map[int]*pomodoro.Job),
+		pomodoros: make(map[int]*Pomodoro),
 	}
 }
 
-func (b Bot) HandleMessage(message *models.NewMessage) error {
-	userID := message.UserID
+func (b Bot) HandleMessage(m *NewMessage) error {
+	id := m.UserID
 
-	if val, ok := b.pomodoros[userID]; ok {
+	if val, ok := b.pomodoros[id]; ok {
 		val.Cancel()
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	b.pomodoros[userID] = &pomodoro.Job{
+	b.pomodoros[id] = &Pomodoro{
 		Cancel: cancel,
 	}
 
-	go b.waitTimer(ctx, 10*time.Second, userID)
+	duration := 10 * time.Second
+	log.Printf("[INFO] starting new pomodoro for %v minutes", duration)
+	go b.waitTimer(ctx, duration, id)
 
 	return nil
 }
 
+const MessageSendURL = "https://api.vk.com/method/messages.send?"
 func (b Bot) sendMessageToUser(userID int, message string) error {
-	req, err := http.NewRequest("GET", vkMessageSendURL, nil)
+	req, err := http.NewRequest("GET", MessageSendURL, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not create a request: %v", err)
 	}
 
 	q := req.URL.Query()
@@ -62,17 +57,15 @@ func (b Bot) sendMessageToUser(userID int, message string) error {
 	q.Add("v", "5.0")
 	req.URL.RawQuery = q.Encode()
 
+	log.Printf("[INFO] calling an API with request: %v", req)
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not call an API: %v", err)
 	}
 
-	if resp.StatusCode != 200 {
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return fmt.Errorf("%s", body)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad response from a server: %s", resp.Status)
 	}
 	return nil
 }

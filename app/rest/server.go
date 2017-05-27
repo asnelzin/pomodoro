@@ -6,7 +6,6 @@ import (
 	"github.com/pressly/chi/middleware"
 	"net/http"
 	"encoding/json"
-	"github.com/asnelzin/pomodoro/app/models"
 	"github.com/asnelzin/pomodoro/app/vk"
 )
 
@@ -17,7 +16,7 @@ type Server struct {
 }
 
 func (s Server) Run() {
-	log.Printf("[INFO] activate rest server")
+	log.Print("[INFO] activate rest server")
 
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
@@ -39,12 +38,12 @@ func (s Server) Run() {
 func (s Server) handleCallback(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	event := models.Event{}
+	event := vk.Event{}
 
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&event)
 	if err != nil {
-		log.Println(err)
+		log.Printf("[ERROR] could not decode request: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -57,11 +56,13 @@ func (s Server) handleCallback(w http.ResponseWriter, r *http.Request) {
 
 	case "message_new":
 		if !CheckSecretMatch(event.SecretKey, s.SecretKey) {
+			log.Print("[WARN] incorrect secret key")
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 		err = s.Bot.HandleMessage(&event.Object)
 		if err != nil {
+			log.Printf("[ERROR] could not handle message: %v", err)
 			http.Error(w, "500", http.StatusInternalServerError)
 			return
 		}
