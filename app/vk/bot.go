@@ -37,9 +37,18 @@ func (b Bot) HandleMessage(m *NewMessage) error {
 		Cancel: cancel,
 	}
 
-	duration := 2 * time.Second
+	match := minutesRegEx.FindStringSubmatch(m.Body)
+	if len(match) == 0 {
+		return fmt.Errorf("could not find any digets in message %s", m.Body)
+	}
+
+	duration, err := strconv.Atoi(match[0])
+	if err != nil {
+		return fmt.Errorf("could not parse string to int %s: %v", match, err)
+	}
+
 	log.Printf("[INFO] starting new pomodoro for %v", duration)
-	go b.waitTimer(ctx, duration, id)
+	go b.waitTimer(ctx, time.Duration(duration) * time.Second, id)
 
 	return nil
 }
