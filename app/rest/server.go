@@ -1,12 +1,12 @@
 package rest
 
 import (
-	"log"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/middleware"
-	"net/http"
 	"encoding/json"
 	"github.com/asnelzin/pomodoro/app/vk"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/middleware"
+	"log"
+	"net/http"
 )
 
 type Server struct {
