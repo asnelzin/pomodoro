@@ -121,10 +121,6 @@ func (b Bot) waitTimer(ctx context.Context, d time.Duration, userID int) {
 	case <-ctx.Done():
 		return
 	case <-time.After(d):
-		err := b.sendMessageToUser(userID, POMODORO_DONE_RESPONSE)
-		if err != nil {
-			log.Printf("[ERROR] can't send message to user: %v", err)
-		}
-		return
+		go b.say(userID, POMODORO_DONE_RESPONSE)
 	}
 }
